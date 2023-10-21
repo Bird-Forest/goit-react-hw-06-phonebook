@@ -1,29 +1,30 @@
 import React from 'react';
-import { HiOutlineTrash } from 'react-icons/hi';
-import { nanoid } from 'nanoid';
+import { Wrap } from './ContactList.styled';
+import { useSelector } from 'react-redux';
+import Contact from 'components/Contact/Contact';
+import { nanoid } from '@reduxjs/toolkit';
 
-import {
-  Wrap,
-  ContactWrap,
-  ContacNsme,
-  ContacNumber,
-  BtnDelete,
-} from './ContactList.styled';
+export default function ContactList() {
+  const contacts = useSelector(state => state.contacts.contacts);
+  const filter = useSelector(state => state.filter);
+  console.log(filter);
 
-export function ContactList({ contacts, deleteContact }) {
+  let arrContacts = contacts;
+
+  if (filter.filter !== null) {
+    arrContacts = contacts.filter(({ name }) =>
+      name.toLowerCase().includes(filter.filter)
+    );
+  }
+  console.log(arrContacts);
+  const showArr = Array.isArray(arrContacts) && arrContacts.length;
+
   return (
     <Wrap>
-      {contacts.map(({ name, number, id }) => {
-        return (
-          <ContactWrap id={id} key={nanoid()}>
-            <ContacNsme>{name}</ContacNsme>
-            <ContacNumber>{number}</ContacNumber>
-            <BtnDelete type="button" onClick={() => deleteContact(id)}>
-              <HiOutlineTrash className="icon" />
-            </BtnDelete>
-          </ContactWrap>
-        );
-      })}
+      {showArr &&
+        arrContacts.map(({ id, name, number }) => {
+          return <Contact key={nanoid()} id={id} name={name} number={number} />;
+        })}
     </Wrap>
   );
 }

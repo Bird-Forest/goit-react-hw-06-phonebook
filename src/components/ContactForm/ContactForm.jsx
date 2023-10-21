@@ -6,44 +6,41 @@ import {
   ContactNumber,
   BtnAdd,
 } from './ContactForm.styled';
-import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
 
-export const ContactForm = props => {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-
+export default function ContactForm() {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.contacts);
+  console.log(contacts);
   const handleSubmit = event => {
     event.preventDefault();
-    const newContact = {
-      name: name,
-      number: number,
-      id: nanoid(),
-    };
-    props.onAddContact(newContact);
-
-    setName('');
-    setNumber('');
+    const hasContact = contacts.some(
+      contact => contact.name === event.target.elements.name.value
+    );
+    if (hasContact) {
+      alert(`${hasContact} is already in contacts`);
+      return;
+    }
+    dispatch(
+      addContact({
+        id: nanoid(),
+        name: event.target.elements.name.value,
+        number: event.target.elements.number.value,
+      })
+    );
+    event.currentTarget.reset();
   };
 
   return (
     <div>
       <Form onSubmit={handleSubmit}>
         <MarkField>Name</MarkField>
-        <ContactName
-          type="text"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          required
-        />
+        <ContactName type="text" name="name" required />
         <MarkField>Number</MarkField>
-        <ContactNumber
-          type="tel"
-          value={number}
-          onChange={e => setNumber(e.target.value)}
-          required
-        />
+        <ContactNumber type="tel" name="number" required />
         <BtnAdd type="submit">Add contact</BtnAdd>
       </Form>
     </div>
   );
-};
+}
